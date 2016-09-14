@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: qUD2m/4pUEL+Ju1hvuHLmvUoHgJ8oFWmU+ihR1T84SO3OIyc1JCaCeKGY6iNGN8yoKZ0aDWQcvFMt5jDUYL1wa3ne6wFKl9uKT/UW9yimUIioU5pp0fLCYxNJpdgezalhu5xJk1PqGhrQo3Pjdo8EpEoGJzAX2LVs/VKTK8MdQq22T/L2gffe6aEh2vZhnvWt+OBq5b8iy90rPfcpMy4pxUjFMCUozg1OSuR/Frl3KaDbuvWu7FG5PTTXurL9oFqdBz19EFRoTDrxNpD3bUMG4nK4LxMBQ8Q9cKicROxL3fcbVzDoR1WZ449NVdrrdnJa/0SZHWMaqff9iBqv00nJsL1kmYtSsEmucccc/eVKeXlZbw8UgOJLK4eFHS+PEhAP0qJGZfsJBvzcxgPnRcmNZhnct8jiqQt6F9xL1Plx+tqL0IA05iQzpLhIPXIpPKUGY4xJ91tfby7QIkS5mqIHWBqDjInY99SSjGoeXUXUoWnoou7sbSXGvcCkYpnhTZ6pmqzPVnM3NkVERJWuCuYCZ8MLLlqE9X0oiyVhqhduDtwkzYNXSxytc/YngD4ZECGVb2L+oqrh4tNbbVUrWs/AOPNx9CoDzHEhJ/sCkjPJ6yLDr9vykSPPeGMiJwOnQWczE/VpzSX/ZbxCGAtkHoqkUUERofkqV12niXfzH3cZz4=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Book-of-the-Thousand-Nights-and-a-Night-Volume-03_3437
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
